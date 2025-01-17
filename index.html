@@ -9,7 +9,7 @@
 
             body {
                 font-family: "Roboto", sans-serif;
-                margin: 2rem;
+                margin: 1rem;
                 background: linear-gradient(to bottom right, #a8edea, #fed6e3);
                 color: #333;
                 display: flex;
@@ -20,28 +20,30 @@
 
             h1 {
                 text-align: center;
-                font-size: 2.5rem;
-                margin-bottom: 2rem;
+                font-size: clamp(1.5rem, 5vw, 2.5rem);
+                margin-bottom: 1.5rem;
                 color: #4a5568;
                 text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
             }
 
             h2 {
-                margin-top: 2rem;
+                margin-top: 1.5rem;
                 color: #4a5568;
+                font-size: clamp(1.2rem, 4vw, 1.8rem);
             }
 
             p {
                 text-align: center;
-                max-width: 600px;
+                max-width: 90vw;
                 line-height: 1.6;
+                font-size: clamp(0.9rem, 3vw, 1rem);
             }
 
             form {
-                width: 100%;
+                width: 90%;
                 max-width: 400px;
-                margin: 0 auto 2rem auto;
-                padding: 2rem;
+                margin: 0 auto 1.5rem auto;
+                padding: 1.5rem;
                 background: white;
                 border-radius: 10px;
                 box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -51,6 +53,7 @@
                 display: block;
                 margin: 0.5rem 0 0.2rem;
                 font-weight: bold;
+                font-size: clamp(0.9rem, 3vw, 1rem);
             }
 
             input[type="text"],
@@ -60,19 +63,19 @@
                 margin-bottom: 1rem;
                 border: 1px solid #ccc;
                 border-radius: 5px;
-                font-size: 1rem;
+                font-size: clamp(0.9rem, 3vw, 1rem);
             }
 
             button {
                 width: 100%;
-                padding: 1rem;
+                padding: 0.8rem;
                 margin-top: 1rem;
                 background: #4a5568;
                 color: #fff;
                 border: none;
                 cursor: pointer;
                 border-radius: 5px;
-                font-size: 1rem;
+                font-size: clamp(0.9rem, 3vw, 1rem);
                 transition: background-color 0.3s ease;
             }
 
@@ -82,12 +85,15 @@
 
             #preview-container {
                 text-align: center;
-                margin: 2rem 0;
+                margin: 1.5rem 0;
                 width: 100%;
-                max-width: 600px;
+                max-width: 90vw;
             }
 
             #tombstoneCanvas {
+                width: 100%;
+                max-width: 500px;
+                height: auto;
                 border: 3px solid #666;
                 background-color: #f8f8f8;
                 border-radius: 10px;
@@ -97,6 +103,25 @@
             #downloadBtn {
                 display: none;
                 margin-top: 1rem;
+            }
+
+            blockquote {
+                font-size: clamp(0.9rem, 3vw, 1rem);
+                max-width: 90vw;
+            }
+
+            @media (max-width: 600px) {
+                body {
+                    margin: 0.5rem;
+                }
+
+                form {
+                    padding: 1rem;
+                }
+
+                #preview-container {
+                    margin: 1rem 0;
+                }
             }
         </style>
     </head>
@@ -139,23 +164,23 @@
         </div>
 
         <div>
-            <h2 style="text-align: justify">Why Tombstone?</h2>
-            <p style="text-align: justify">
+            <h2 style="text-align: center">Why Tombstone?</h2>
+            <p style="text-align: center">
                 In my year one, when I was taking HSH1000, my wise tutor said:
             </p>
             <blockquote
                 style="
-                    text-align: justify;
+                    text-align: center;
                     font-style: italic;
                     border-left: 4px solid #ccc;
                     padding-left: 1rem;
-                    margin: 1rem 0;
+                    margin: 1rem auto;
                 "
             >
                 "Don't worry too much about your GPAs. When you die, you
                 wouldn't write it on your tombstone."
             </blockquote>
-            <p style="text-align: justify">
+            <p style="text-align: center">
                 When I told my friend this, she said: "Well, you certainly can."
                 So, here is a tombstone generator to help you write your GPA on
                 your tombstone, if you so wish. 😄
@@ -168,14 +193,22 @@
             const ctx = canvas.getContext("2d");
             const downloadBtn = document.getElementById("downloadBtn");
 
-            // A helper function to draw the tombstone shape
+            function resizeCanvas() {
+                const container = document.getElementById("preview-container");
+                const containerWidth = container.clientWidth;
+                const scale = Math.min(1, containerWidth / 500);
+
+                canvas.style.width = `${500 * scale}px`;
+                canvas.style.height = `${500 * scale}px`;
+            }
+
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+
             function drawTombstoneShape(context, x, y, width, height) {
-                const radius = width / 2; // for the arc on top
+                const radius = width / 2;
 
-                // Start drawing the shape
                 context.beginPath();
-
-                // Arc (top half-circle)
                 context.arc(
                     x + width / 2,
                     y + radius,
@@ -184,23 +217,17 @@
                     0,
                     false,
                 );
-
-                // Lines down the sides
                 context.lineTo(x + width, y + height);
                 context.lineTo(x, y + height);
-
-                // Finish at the starting point
                 context.closePath();
 
-                // Tombstone fill & outline
-                context.fillStyle = "#ccc"; // Gray fill
+                context.fillStyle = "#ccc";
                 context.fill();
                 context.lineWidth = 4;
-                context.strokeStyle = "#666"; // Darker gray stroke
+                context.strokeStyle = "#666";
                 context.stroke();
             }
 
-            // Draw text lines in the center of the tombstone
             function drawCenteredText(
                 context,
                 text,
@@ -217,31 +244,25 @@
                 return currentY + lineHeight;
             }
 
-            // Handle form submission
             form.addEventListener("submit", (event) => {
                 event.preventDefault();
 
-                // Grab user input
                 const name = document.getElementById("nameInput").value;
                 const birthYear =
                     document.getElementById("birthYearInput").value;
                 let deathDate = document.getElementById("deathDateInput").value;
                 const gpa = document.getElementById("gpaInput").value;
 
-                // Default death date if blank
                 if (!deathDate) {
                     deathDate = "????";
                 }
 
-                // Clear the canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Some margins
                 const margin = 50;
                 const tombstoneWidth = canvas.width - margin * 2;
                 const tombstoneHeight = canvas.height - margin * 2;
 
-                // Draw the tombstone shape
                 drawTombstoneShape(
                     ctx,
                     margin,
@@ -250,13 +271,10 @@
                     tombstoneHeight,
                 );
 
-                // Prepare to draw text in the center region of the tombstone
                 const centerX = canvas.width / 2;
-                // We'll start a bit above the center
                 let currentY = canvas.height / 2 - 30;
                 const lineHeight = 40;
 
-                // Draw text lines
                 currentY = drawCenteredText(
                     ctx,
                     name,
@@ -294,11 +312,9 @@
                     "Georgia",
                 );
 
-                // Make the download button visible
                 downloadBtn.style.display = "inline-block";
             });
 
-            // Download the canvas as an image
             downloadBtn.addEventListener("click", () => {
                 const link = document.createElement("a");
                 link.download = "tombstone.png";
