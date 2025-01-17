@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Tombstone Generator</title>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap");
+
+            body {
+                font-family: "Roboto", sans-serif;
+                margin: 2rem;
+                background: linear-gradient(to bottom right, #a8edea, #fed6e3);
+                color: #333;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-height: 100vh;
+            }
+
+            h1 {
+                text-align: center;
+                font-size: 2.5rem;
+                margin-bottom: 2rem;
+                color: #4a5568;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            h2 {
+                margin-top: 2rem;
+                color: #4a5568;
+            }
+
+            p {
+                text-align: center;
+                max-width: 600px;
+                line-height: 1.6;
+            }
+
+            form {
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto 2rem auto;
+                padding: 2rem;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            }
+
+            label {
+                display: block;
+                margin: 0.5rem 0 0.2rem;
+                font-weight: bold;
+            }
+
+            input[type="text"],
+            input[type="number"] {
+                width: calc(100% - 1rem);
+                padding: 0.8rem;
+                margin-bottom: 1rem;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                font-size: 1rem;
+            }
+
+            button {
+                width: 100%;
+                padding: 1rem;
+                margin-top: 1rem;
+                background: #4a5568;
+                color: #fff;
+                border: none;
+                cursor: pointer;
+                border-radius: 5px;
+                font-size: 1rem;
+                transition: background-color 0.3s ease;
+            }
+
+            button:hover {
+                background: #718096;
+            }
+
+            #preview-container {
+                text-align: center;
+                margin: 2rem 0;
+                width: 100%;
+                max-width: 600px;
+            }
+
+            #tombstoneCanvas {
+                border: 3px solid #666;
+                background-color: #f8f8f8;
+                border-radius: 10px;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            }
+
+            #downloadBtn {
+                display: none;
+                margin-top: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Tombstone Generator</h1>
+
+        <!-- The input form -->
+        <form id="tombstoneForm">
+            <label for="nameInput">Name:</label>
+            <input
+                type="text"
+                id="nameInput"
+                placeholder="e.g. John Smith"
+                required
+            />
+
+            <label for="birthYearInput">Birth Year:</label>
+            <input
+                type="number"
+                id="birthYearInput"
+                placeholder="e.g. 1990"
+                required
+            />
+
+            <label for="deathDateInput">Death Date (optional):</label>
+            <input type="text" id="deathDateInput" placeholder="e.g. 2050" />
+
+            <label for="gpaInput">GPA:</label>
+            <input type="text" id="gpaInput" placeholder="e.g. 4.0" required />
+
+            <button type="submit">Generate Tombstone</button>
+        </form>
+
+        <div id="preview-container">
+            <canvas id="tombstoneCanvas" width="500" height="500"></canvas
+            ><br />
+            <button id="downloadBtn" style="display: none">
+                Download Image
+            </button>
+        </div>
+
+        <div>
+            <h2 style="text-align: justify">Why Tombstone?</h2>
+            <p style="text-align: justify">
+                In my year one, when I was taking HSH1000, my wise tutor said:
+            </p>
+            <blockquote
+                style="
+                    text-align: justify;
+                    font-style: italic;
+                    border-left: 4px solid #ccc;
+                    padding-left: 1rem;
+                    margin: 1rem 0;
+                "
+            >
+                "Don't worry too much about your GPAs. When you die, you
+                wouldn't write it on your tombstone."
+            </blockquote>
+            <p style="text-align: justify">
+                When I told my friend this, she said: "Well, you certainly can."
+                So, here is a tombstone generator to help you write your GPA on
+                your tombstone, if you so wish. 😄
+            </p>
+        </div>
+
+        <script>
+            const form = document.getElementById("tombstoneForm");
+            const canvas = document.getElementById("tombstoneCanvas");
+            const ctx = canvas.getContext("2d");
+            const downloadBtn = document.getElementById("downloadBtn");
+
+            // A helper function to draw the tombstone shape
+            function drawTombstoneShape(context, x, y, width, height) {
+                const radius = width / 2; // for the arc on top
+
+                // Start drawing the shape
+                context.beginPath();
+
+                // Arc (top half-circle)
+                context.arc(
+                    x + width / 2,
+                    y + radius,
+                    radius,
+                    Math.PI,
+                    0,
+                    false,
+                );
+
+                // Lines down the sides
+                context.lineTo(x + width, y + height);
+                context.lineTo(x, y + height);
+
+                // Finish at the starting point
+                context.closePath();
+
+                // Tombstone fill & outline
+                context.fillStyle = "#ccc"; // Gray fill
+                context.fill();
+                context.lineWidth = 4;
+                context.strokeStyle = "#666"; // Darker gray stroke
+                context.stroke();
+            }
+
+            // Draw text lines in the center of the tombstone
+            function drawCenteredText(
+                context,
+                text,
+                centerX,
+                currentY,
+                lineHeight,
+                fontSize = 24,
+                fontStyle = "Arial",
+            ) {
+                context.font = `${fontSize}px ${fontStyle}`;
+                context.fillStyle = "#000";
+                context.textAlign = "center";
+                context.fillText(text, centerX, currentY);
+                return currentY + lineHeight;
+            }
+
+            // Handle form submission
+            form.addEventListener("submit", (event) => {
+                event.preventDefault();
+
+                // Grab user input
+                const name = document.getElementById("nameInput").value;
+                const birthYear =
+                    document.getElementById("birthYearInput").value;
+                let deathDate = document.getElementById("deathDateInput").value;
+                const gpa = document.getElementById("gpaInput").value;
+
+                // Default death date if blank
+                if (!deathDate) {
+                    deathDate = "????";
+                }
+
+                // Clear the canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Some margins
+                const margin = 50;
+                const tombstoneWidth = canvas.width - margin * 2;
+                const tombstoneHeight = canvas.height - margin * 2;
+
+                // Draw the tombstone shape
+                drawTombstoneShape(
+                    ctx,
+                    margin,
+                    margin,
+                    tombstoneWidth,
+                    tombstoneHeight,
+                );
+
+                // Prepare to draw text in the center region of the tombstone
+                const centerX = canvas.width / 2;
+                // We'll start a bit above the center
+                let currentY = canvas.height / 2 - 30;
+                const lineHeight = 40;
+
+                // Draw text lines
+                currentY = drawCenteredText(
+                    ctx,
+                    name,
+                    centerX,
+                    currentY,
+                    lineHeight,
+                    30,
+                    "Georgia",
+                );
+                currentY = drawCenteredText(
+                    ctx,
+                    `Born: ${birthYear}`,
+                    centerX,
+                    currentY,
+                    lineHeight,
+                    24,
+                    "Georgia",
+                );
+                currentY = drawCenteredText(
+                    ctx,
+                    `Died: ${deathDate}`,
+                    centerX,
+                    currentY,
+                    lineHeight,
+                    24,
+                    "Georgia",
+                );
+                currentY = drawCenteredText(
+                    ctx,
+                    `GPA: ${gpa}`,
+                    centerX,
+                    currentY,
+                    lineHeight,
+                    24,
+                    "Georgia",
+                );
+
+                // Make the download button visible
+                downloadBtn.style.display = "inline-block";
+            });
+
+            // Download the canvas as an image
+            downloadBtn.addEventListener("click", () => {
+                const link = document.createElement("a");
+                link.download = "tombstone.png";
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        </script>
+    </body>
+</html>
